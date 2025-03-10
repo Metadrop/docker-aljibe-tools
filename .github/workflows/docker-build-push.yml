@@ -20,7 +20,7 @@ jobs:
       attestations: write
       id-token: write
     env:
-      IMAGE_NAME: 'aljibe-tools'
+      IMAGE_NAME: 'metadrop/aljibe-tools'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
           - 6.3.3
           - 6.3.7
     env:
-      IMAGE_NAME: 'aljibe-tools/backstopjs'
+      IMAGE_NAME: 'metadrop/aljibe-tools/backstopjs'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -141,7 +141,7 @@ jobs:
           - 0.16.0
           - 0.16.2
     env:
-      IMAGE_NAME: 'aljibe-tools/unlighthouse'
+      IMAGE_NAME: 'metadrop/aljibe-tools/unlighthouse'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
