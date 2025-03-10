@@ -1,0 +1,8 @@
+FROM ghcr.io/metadrop/aljibe-tools:latest
+ARG BACKSTOPJS_VERSION
+
+USER root
+RUN --mount=type=cache,target=/root/.npm npm install -g backstopjs@$BACKSTOPJS_VERSION \
+  && npm cache clean --force
+
+USER aljibe

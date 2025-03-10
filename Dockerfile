@@ -25,13 +25,6 @@ RUN set -eux; \
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-# Install unlighthouse and backstopjs.
-RUN --mount=type=cache,target=/root/.npm npm install -g unlighthouse backstopjs \
-  && npm cache clean --force
-
-# Unlighthouse port.
-EXPOSE 5678
-
 # Add user so we don't need --no-sandbox.
 RUN addgroup aljibe && adduser --ingroup aljibe aljibe \
     && mkdir -p /home/aljibe/Downloads /app \
