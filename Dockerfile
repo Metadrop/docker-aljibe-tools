@@ -15,7 +15,7 @@ RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
     nodejs=22.* \
-    chromium=133.0.* \
+    chromium \
 	; \
 	\
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
