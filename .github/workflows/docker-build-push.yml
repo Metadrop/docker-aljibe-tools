@@ -170,7 +170,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.backstopjs
+          file: Dockerfile.unlighthouse
           build-args: |
             BACKSTOPJS_VERSION=${{ matrix.version }}
           push: true
