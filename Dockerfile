@@ -7,6 +7,9 @@ RUN set -eux; \
     ca-certificates=20230311 \
     curl=7.88.* \
     gpg=2.2.* \
+    sudo=1.9.* \
+    fonts-liberation=1:1.07.* \
+    chromium \
   ; \
   \
   curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | tee /etc/apt/trusted.gpg.d/nodesource.asc; \
@@ -15,7 +18,6 @@ RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
     nodejs=22.* \
-    chromium \
 	; \
 	\
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
