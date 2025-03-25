@@ -2,6 +2,26 @@ FROM ghcr.io/metadrop/aljibe-tools:latest
 ARG BACKSTOPJS_VERSION
 
 USER root
+# Install extra fonts.
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+    fonts-liberation \
+    # cyrillic, greek, hebrew
+    xfonts-intl-european \
+    # chinese
+    xfonts-wqy fonts-wqy-zenhei fonts-arphic-ukai fonts-arphic-uming \
+    # japanese
+    fonts-ipafont-mincho fonts-ipafont-gothic fonts-ipafont fonts-vlgothic \
+    # korean
+    fonts-unfonts-core fonts-unfonts-extra \
+    # cjk + emoji font
+    fonts-noto-cjk fonts-noto-color-emoji \
+  ; \
+  \
+  apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+  rm -rf /var/lib/apt/lists/*
+
 RUN --mount=type=cache,target=/root/.npm npm install -g backstopjs@$BACKSTOPJS_VERSION \
   && npm cache clean --force
 
