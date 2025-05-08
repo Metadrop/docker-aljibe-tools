@@ -72,6 +72,7 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__backstopjs:
+    needs: build-and-push-image__base
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -138,6 +139,7 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__unlighthouse:
+    needs: build-and-push-image__base
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
