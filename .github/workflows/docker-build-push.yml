@@ -87,7 +87,7 @@ jobs:
           - 6.1.4
           - 6.3.3
           - 6.3.7
-        platforms:
+        platform:
           - linux/amd64
           - linux/arm64
     env:
@@ -156,7 +156,7 @@ jobs:
           - 0.16.0
           - 0.16.2
           - 0.16.3
-        platforms:
+        platform:
           - linux/amd64
           - linux/arm64
     env:
@@ -195,7 +195,7 @@ jobs:
           file: Dockerfile.unlighthouse
           platforms: ${{ matrix.platform }}
           build-args: |
-            BACKSTOPJS_VERSION=${{ matrix.version }}
+            UNLIGHTHOUSE_VERSION=${{ matrix.version }}
           provenance: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
