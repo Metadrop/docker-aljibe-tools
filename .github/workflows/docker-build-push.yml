@@ -87,9 +87,6 @@ jobs:
           - 6.1.4
           - 6.3.3
           - 6.3.7
-        platform:
-          - linux/amd64
-          - linux/arm64
     env:
       IMAGE_NAME: 'metadrop/aljibe-tools/backstopjs'
     steps:
@@ -124,7 +121,7 @@ jobs:
         with:
           context: .
           file: Dockerfile.backstopjs
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           build-args: |
             BACKSTOPJS_VERSION=${{ matrix.version }}
           provenance: false
@@ -156,9 +153,6 @@ jobs:
           - 0.16.0
           - 0.16.2
           - 0.16.3
-        platform:
-          - linux/amd64
-          - linux/arm64
     env:
       IMAGE_NAME: 'metadrop/aljibe-tools/unlighthouse'
     steps:
@@ -193,7 +187,7 @@ jobs:
         with:
           context: .
           file: Dockerfile.unlighthouse
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           build-args: |
             UNLIGHTHOUSE_VERSION=${{ matrix.version }}
           provenance: false

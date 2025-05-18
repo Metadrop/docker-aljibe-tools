@@ -2,8 +2,7 @@ FROM ghcr.io/metadrop/aljibe-tools:latest
 ARG UNLIGHTHOUSE_VERSION
 
 USER root
-RUN --mount=type=cache,target=/root/.npm npm install -g unlighthouse@$UNLIGHTHOUSE_VERSION \
-  && npm cache clean --force
+RUN --mount=type=cache,target=/root/.npm npm install -g unlighthouse@$UNLIGHTHOUSE_VERSION
 
 EXPOSE 5678
 
