@@ -4,11 +4,11 @@ FROM debian:bookworm-slim
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
-    ca-certificates=20230311 \
-    curl=7.88.* \
-    gpg=2.2.* \
-    sudo=1.9.* \
-    fonts-liberation=1:1.07.* \
+    ca-certificates \
+    curl \
+    gpg \
+    sudo \
+    fonts-liberation \
     chromium \
   ; \
   \
