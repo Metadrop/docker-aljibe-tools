@@ -1,0 +1,14 @@
+FROM ghcr.io/metadrop/aljibe-tools:latest
+ARG PA11Y_VERSION
+
+USER root
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends git; \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g pa11y@$PA11Y_VERSION macieklewkowicz/pa11y-reporter-junit
+
+USER aljibe
