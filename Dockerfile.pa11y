@@ -8,7 +8,9 @@ RUN set -eux; \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
     rm -rf /var/lib/apt/lists/*
 
+ARG PA11Y_CI_VERSION
+
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g pa11y@$PA11Y_VERSION macieklewkowicz/pa11y-reporter-junit
+    npm install -g pa11y@$PA11Y_VERSION pa11y-ci@$PA11Y_CI_VERSION pa11y-ci-reporter-html macieklewkowicz/pa11y-reporter-junit#pull/2/head
 
 USER aljibe
