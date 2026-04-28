@@ -1,3 +1,5 @@
+[![Images build and publish](https://github.com/Metadrop/docker-aljibe-tools/actions/workflows/docker-build-push.yml/badge.svg)](https://github.com/Metadrop/docker-aljibe-tools/actions/workflows/docker-build-push.yml)
+
 # Aljibe Tools
 
 This repository provides a Dockerfile with some tools used by [Aljibe ddev add-on](https://github.com/Metadrop/ddev-aljibe/).
