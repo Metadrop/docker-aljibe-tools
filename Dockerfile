@@ -31,10 +31,10 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 # Add user so we don't need --no-sandbox.
-RUN addgroup aljibe && adduser --ingroup aljibe aljibe \
-    && mkdir -p /home/aljibe/Downloads /app \
-    && chown -R aljibe:aljibe /home/aljibe \
-    && chown -R aljibe:aljibe /app
+RUN addgroup ddev && adduser --ingroup ddev ddev \
+    && mkdir -p /home/ddev/Downloads /app \
+    && chown -R ddev:ddev /home/ddev \
+    && chown -R ddev:ddev /app
 
-USER aljibe
-WORKDIR /home/aljibe
+USER ddev
+WORKDIR /home/ddev

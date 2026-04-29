@@ -6,5 +6,5 @@ RUN --mount=type=cache,target=/root/.npm npm install -g unlighthouse@$UNLIGHTHOU
 
 EXPOSE 5678
 
-USER aljibe
+USER ddev
 WORKDIR /src

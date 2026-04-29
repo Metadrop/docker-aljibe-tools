@@ -13,4 +13,4 @@ ARG PA11Y_CI_VERSION
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g pa11y@$PA11Y_VERSION pa11y-ci@$PA11Y_CI_VERSION pa11y-ci-reporter-html serve macieklewkowicz/pa11y-reporter-junit#pull/2/head
 
-USER aljibe
+USER ddev
