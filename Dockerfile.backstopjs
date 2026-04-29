@@ -23,5 +23,3 @@ RUN set -eux; \
   rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.npm npm install -g backstopjs@$BACKSTOPJS_VERSION
-
-USER ddev
