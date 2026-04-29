@@ -7,6 +7,7 @@ RUN set -eux; \
     ca-certificates \
     curl \
     gpg \
+    gosu \
     sudo \
     fonts-liberation \
     chromium \
@@ -36,5 +37,9 @@ RUN addgroup ddev && adduser --ingroup ddev ddev \
     && chown -R ddev:ddev /home/ddev \
     && chown -R ddev:ddev /app
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 USER ddev
 WORKDIR /home/ddev
