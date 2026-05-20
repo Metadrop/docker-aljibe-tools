@@ -7,6 +7,7 @@ RUN set -eux; \
     ca-certificates \
     curl \
     gpg \
+    jq \
     sudo \
     fonts-liberation \
     chromium \
