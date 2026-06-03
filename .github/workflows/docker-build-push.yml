@@ -5,12 +5,35 @@ name: Build addons images
 on:
   workflow_dispatch: {}
   push:
+    branches: ['main']
     tags: ['v*']
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backstopjs: ${{ steps.filter.outputs.backstopjs }}
+      pa11y: ${{ steps.filter.outputs.pa11y }}
+      unlighthouse: ${{ steps.filter.outputs.unlighthouse }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect changed files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backstopjs:
+              - 'versions.backstopjs.json'
+            pa11y:
+              - 'versions.pa11y.json'
+            unlighthouse:
+              - 'versions.unlighthouse.json'
+
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -42,6 +65,7 @@ jobs:
 
   build-and-push-image__base:
     needs: [setup]
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -95,7 +119,11 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__backstopjs:
-    needs: [setup, build-and-push-image__base]
+    needs: [changes, setup, build-and-push-image__base]
+    if: |
+      always() &&
+      !failure() && !cancelled() &&
+      (startsWith(github.ref, 'refs/tags/') || needs.changes.outputs.backstopjs == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -155,7 +183,11 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__pa11y:
-    needs: [setup, build-and-push-image__base]
+    needs: [changes, setup, build-and-push-image__base]
+    if: |
+      always() &&
+      !failure() && !cancelled() &&
+      (startsWith(github.ref, 'refs/tags/') || needs.changes.outputs.pa11y == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -212,7 +244,11 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__unlighthouse:
-    needs: [setup, build-and-push-image__base]
+    needs: [changes, setup, build-and-push-image__base]
+    if: |
+      always() &&
+      !failure() && !cancelled() &&
+      (startsWith(github.ref, 'refs/tags/') || needs.changes.outputs.unlighthouse == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
