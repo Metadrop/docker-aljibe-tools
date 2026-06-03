@@ -1,4 +1,5 @@
-FROM ghcr.io/metadrop/aljibe-tools:latest
+ARG BASE_VERSION=latest
+FROM ghcr.io/metadrop/aljibe-tools:${BASE_VERSION}
 ARG BACKSTOPJS_VERSION
 
 USER root

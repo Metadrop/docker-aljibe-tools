@@ -5,63 +5,43 @@ name: Build addons images
 on:
   workflow_dispatch: {}
   push:
-    branches: ['main']
+    tags: ['v*']
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      base: ${{ steps.filter.outputs.base }}
-      backstopjs: ${{ steps.filter.outputs.backstopjs }}
-      pa11y: ${{ steps.filter.outputs.pa11y }}
-      unlighthouse: ${{ steps.filter.outputs.unlighthouse }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Detect changed files
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            base:
-              - 'Dockerfile'
-            backstopjs:
-              - 'Dockerfile.backstopjs'
-              - 'versions.backstopjs.json'
-            pa11y:
-              - 'Dockerfile.pa11y'
-              - 'versions.pa11y.json'
-            unlighthouse:
-              - 'Dockerfile.unlighthouse'
-              - 'versions.unlighthouse.json'
-
   setup:
     runs-on: ubuntu-latest
     outputs:
       backstopjs_matrix: ${{ steps.read.outputs.backstopjs }}
       unlighthouse_matrix: ${{ steps.read.outputs.unlighthouse }}
       pa11y_matrix: ${{ steps.read.outputs.pa11y }}
+      base_version: ${{ steps.read.outputs.base_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Read versions
         id: read
         run: |
-          backstopjs=$(jq -c '{include: [.versions[] as $v | {version: $v, is_latest: ($v == .latest)}]}' versions.backstopjs.json)
-          unlighthouse=$(jq -c '{include: [.versions[] as $v | {version: $v, is_latest: ($v == .latest)}]}' versions.unlighthouse.json)
-          pa11y=$(jq -c '{include: [.versions[] as $v | {version: $v.pa11y, pa11y_ci: $v.pa11y_ci, is_latest: ($v.pa11y == .latest)}]}' versions.pa11y.json)
+          backstopjs=$(jq -c '{include: [.versions[] as $v | {version: $v}]}' versions.backstopjs.json)
+          unlighthouse=$(jq -c '{include: [.versions[] as $v | {version: $v}]}' versions.unlighthouse.json)
+          pa11y=$(jq -c '{include: [.versions[] as $v | {version: $v.pa11y, pa11y_ci: $v.pa11y_ci}]}' versions.pa11y.json)
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            base_version="${GITHUB_REF_NAME#v}"
+          else
+            base_version=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+          fi
           echo "backstopjs=$backstopjs" >> $GITHUB_OUTPUT
           echo "unlighthouse=$unlighthouse" >> $GITHUB_OUTPUT
           echo "pa11y=$pa11y" >> $GITHUB_OUTPUT
+          echo "base_version=$base_version" >> $GITHUB_OUTPUT
 
   build-and-push-image__base:
-    needs: changes
-    if: needs.changes.outputs.base == 'true' || github.event_name == 'workflow_dispatch'
+    needs: [setup]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -89,13 +69,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # Default entries
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            # Set latest tag for default branch
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ needs.setup.outputs.base_version }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -121,11 +95,7 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__backstopjs:
-    needs: [changes, setup, build-and-push-image__base]
-    if: |
-      always() &&
-      !failure() && !cancelled() &&
-      (needs.changes.outputs.backstopjs == 'true' || needs.changes.outputs.base == 'true' || github.event_name == 'workflow_dispatch')
+    needs: [setup, build-and-push-image__base]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -155,8 +125,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ matrix.version }}
-            type=raw,value=latest,enable=${{ matrix.is_latest == true }}
+            type=raw,value=${{ matrix.version }}-base${{ needs.setup.outputs.base_version }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -171,6 +140,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             BACKSTOPJS_VERSION=${{ matrix.version }}
+            BASE_VERSION=${{ needs.setup.outputs.base_version }}
           provenance: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -185,11 +155,7 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__pa11y:
-    needs: [changes, setup, build-and-push-image__base]
-    if: |
-      always() &&
-      !failure() && !cancelled() &&
-      (needs.changes.outputs.pa11y == 'true' || needs.changes.outputs.base == 'true' || github.event_name == 'workflow_dispatch')
+    needs: [setup, build-and-push-image__base]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -217,8 +183,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ matrix.version }}
-            type=raw,value=latest,enable=${{ matrix.is_latest == true }}
+            type=raw,value=${{ matrix.version }}-base${{ needs.setup.outputs.base_version }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -233,6 +198,7 @@ jobs:
           build-args: |
             PA11Y_VERSION=${{ matrix.version }}
             PA11Y_CI_VERSION=${{ matrix.pa11y_ci }}
+            BASE_VERSION=${{ needs.setup.outputs.base_version }}
           provenance: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -246,11 +212,7 @@ jobs:
           push-to-registry: true
 
   build-and-push-image__unlighthouse:
-    needs: [changes, setup, build-and-push-image__base]
-    if: |
-      always() &&
-      !failure() && !cancelled() &&
-      (needs.changes.outputs.unlighthouse == 'true' || needs.changes.outputs.base == 'true' || github.event_name == 'workflow_dispatch')
+    needs: [setup, build-and-push-image__base]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -280,8 +242,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ matrix.version }}
-            type=raw,value=latest,enable=${{ matrix.is_latest == true }}
+            type=raw,value=${{ matrix.version }}-base${{ needs.setup.outputs.base_version }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -296,6 +257,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             UNLIGHTHOUSE_VERSION=${{ matrix.version }}
+            BASE_VERSION=${{ needs.setup.outputs.base_version }}
           provenance: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
